@@ -144,10 +144,11 @@
 
   <script>
     // =========================================================================
-    // CONFIGURATION: Replace with your Adsgram Block ID from adsgram.ai
+    // CONFIGURATION: Wired with your Adsgram Block ID 57101
     // =========================================================================
-    const ADSGRAM_BLOCK_ID = "YOUR_ADSGRAM_BLOCK_ID"; // e.g. "4567"
-    const DEBUG_MODE = true; // Set to true to test with sample ads before going live!
+    const ADSGRAM_BLOCK_ID = "57101";
+    // Set to true while testing (shows instant test ads). Set to false when ready for real earnings!
+    const DEBUG_MODE = false;
 
     let generatedPass = "";
     let tgSession = "";
@@ -199,7 +200,6 @@
       statusEl.innerText = "Loading sponsored video...";
 
       if (!AdController) {
-        // Fallback for browser testing if Adsgram script is blocked by an ad-blocker
         alert("Adsgram SDK not loaded. Please disable AdBlock if active.");
         watchBtn.disabled = false;
         statusEl.innerText = "Error loading ad.";
@@ -207,7 +207,7 @@
       }
 
       AdController.show().then((result) => {
-        // User watched the entire video!
+        // User finished watching the video!
         statusEl.innerText = "✅ Reward verified! Generating 24h pass...";
         generatedPass = generateSecurePass();
         passCodeDisplay.innerText = generatedPass;
@@ -220,7 +220,6 @@
         }, 800);
 
       }).catch((result) => {
-        // User skipped or ad failed
         console.warn("Ad result:", result);
         watchBtn.disabled = false;
         if (result && result.error) {
