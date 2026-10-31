@@ -189,27 +189,49 @@
     console.log("CritiCode Dynamic Target Package:", targetPackage);
 
     // 3. Initialize Adsgram Controller
-    const ADSGRAM_BLOCK_ID = "21406";
+    const ADSGRAM_BLOCK_ID = "57101";
     let AdController = null;
     let generatedPass = "";
+    let autoStarted = false;
 
     const statusEl = document.getElementById("statusText");
     const watchBtn = document.getElementById("watchBtn");
     const fallbackBox = document.getElementById("fallbackBox");
     const passCodeDisplay = document.getElementById("passCodeDisplay");
 
-    try {
-      if (window.Adsgram) {
-        AdController = window.Adsgram.init({
-          blockId: ADSGRAM_BLOCK_ID,
-          debug: false
-        });
-        statusEl.innerText = "Ready to claim 24-hour pass.";
+    function initAndAutoStart() {
+      if (window.Adsgram && !AdController) {
+        try {
+          AdController = window.Adsgram.init({
+            blockId: ADSGRAM_BLOCK_ID,
+            debug: false
+          });
+          statusEl.innerText = "Ready to claim 24-hour pass.";
+        } catch (e) {
+          console.error("Adsgram init error:", e);
+        }
       }
-    } catch (e) {
-      console.error("Adsgram init error:", e);
-      statusEl.innerText = "Ready to claim 24-hour pass.";
+
+      if (AdController && !autoStarted) {
+        autoStarted = true;
+        statusEl.innerText = "Starting sponsored video...";
+        setTimeout(() => {
+          watchVideo();
+        }, 300);
+      }
     }
+
+    try {
+      initAndAutoStart();
+    } catch (e) {
+      console.error("Init error:", e);
+    }
+
+    window.addEventListener("load", () => {
+      initAndAutoStart();
+    });
+    setTimeout(initAndAutoStart, 500);
+    setTimeout(initAndAutoStart, 1000);
 
     function generateSecurePass() {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
