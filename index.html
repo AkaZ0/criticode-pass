@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>CritiCode 24-Hour Sponsor Pass</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #090D14;
+      color: #F8FAFC;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px 0 rgba(2, 132, 199, 0.15);
+    }
+    .shield-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    h1 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    p.desc {
+      font-size: 13px;
+      color: #94A3B8;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .status-box {
+      background: #1E293B;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #38BDF8;
+      font-family: monospace;
+      border: 1px solid #334155;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn {
+      width: 100%;
+      height: 48px;
+      background: #0284C7;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active {
+      transform: scale(0.98);
+      background: #0369A1;
+    }
+    .btn:disabled {
+      background: #334155;
+      color: #64748B;
+      cursor: not-allowed;
+    }
+    .fallback-box {
+      margin-top: 20px;
+      display: none;
+      background: #131D2D;
+      border: 1px dashed #0284C7;
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .fallback-title {
+      font-size: 11px;
+      color: #94A3B8;
+      margin-bottom: 6px;
+    }
+    .pass-code {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38BDF8;
+      letter-spacing: 1px;
+      user-select: all;
+    }
+    .copy-btn {
+      margin-top: 8px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      color: #E2E8F0;
+      padding: 6px 12px;
+      font-size: 11px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="shield-icon">🛡️</div>
+    <h1>CritiCode Sponsor Pass</h1>
+    <p class="desc">Watch a short sponsored video to claim your <strong>24-hour full access pass</strong>.</p>
+
+    <div class="status-box" id="statusText">Initializing session...</div>
+
+    <button class="btn" id="watchBtn" onclick="watchVideo()">
+      ▶️ Watch Sponsored Video
+    </button>
+
+    <div class="fallback-box" id="fallbackBox">
+      <div class="fallback-title">App did not reopen? Copy code into Gatekeeper:</div>
+      <div class="pass-code" id="passCodeDisplay">PASS-XXXXXX</div>
+      <button class="copy-btn" onclick="copyPassCode()">📋 Copy Pass Key</button>
+      <button class="btn" style="margin-top: 10px; height: 38px; font-size: 12px;" onclick="returnToApp()">
+        🔓 Reopen App Now
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURATION: Replace with your Adsgram Block ID from adsgram.ai
+    // =========================================================================
+    const ADSGRAM_BLOCK_ID = "YOUR_ADSGRAM_BLOCK_ID"; // e.g. "4567"
+    const DEBUG_MODE = true; // Set to true to test with sample ads before going live!
+
+    let generatedPass = "";
+    let tgSession = "";
+
+    // 1. Initialize Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      tgSession = window.Telegram.WebApp.initDataUnsafe?.start_param || "";
+    }
+
+    if (!tgSession) {
+      const urlParams = new URLSearchParams(window.location.search);
+      tgSession = urlParams.get("startapp") || urlParams.get("session") || "DEV_" + Date.now();
+    }
+
+    const statusEl = document.getElementById("statusText");
+    const watchBtn = document.getElementById("watchBtn");
+    const fallbackBox = document.getElementById("fallbackBox");
+    const passCodeDisplay = document.getElementById("passCodeDisplay");
+
+    statusEl.innerText = "Ready. Tap below to watch video.";
+
+    // 2. Initialize Adsgram Controller
+    let AdController = null;
+    try {
+      if (window.Adsgram) {
+        AdController = window.Adsgram.init({
+          blockId: ADSGRAM_BLOCK_ID,
+          debug: DEBUG_MODE
+        });
+      }
+    } catch (e) {
+      console.error("Adsgram init error:", e);
+    }
+
+    function generateSecurePass() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return "PASS-" + code;
+    }
+
+    // 3. Watch Video & Reward Handler
+    function watchVideo() {
+      watchBtn.disabled = true;
+      statusEl.innerText = "Loading sponsored video...";
+
+      if (!AdController) {
+        // Fallback for browser testing if Adsgram script is blocked by an ad-blocker
+        alert("Adsgram SDK not loaded. Please disable AdBlock if active.");
+        watchBtn.disabled = false;
+        statusEl.innerText = "Error loading ad.";
+        return;
+      }
+
+      AdController.show().then((result) => {
+        // User watched the entire video!
+        statusEl.innerText = "✅ Reward verified! Generating 24h pass...";
+        generatedPass = generateSecurePass();
+        passCodeDisplay.innerText = generatedPass;
+        fallbackBox.style.display = "block";
+        watchBtn.style.display = "none";
+
+        // Auto-return deep link back into the app
+        setTimeout(() => {
+          returnToApp();
+        }, 800);
+
+      }).catch((result) => {
+        // User skipped or ad failed
+        console.warn("Ad result:", result);
+        watchBtn.disabled = false;
+        if (result && result.error) {
+          statusEl.innerText = "No ad available right now. Please try again.";
+        } else {
+          statusEl.innerText = "⚠️ Video not completed. Please watch until the end.";
+        }
+      });
+    }
+
+    function returnToApp() {
+      const deepLink = "criticode://unlock?token=" + encodeURIComponent(generatedPass);
+      window.location.href = deepLink;
+    }
+
+    function copyPassCode() {
+      navigator.clipboard.writeText(generatedPass).then(() => {
+        alert("Pass copied! Paste it into Gatekeeper to activate.");
+      }).catch(() => {
+        prompt("Copy this pass key:", generatedPass);
+      });
+    }
+  </script>
+</body>
+</html>
