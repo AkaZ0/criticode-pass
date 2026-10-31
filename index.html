@@ -308,10 +308,12 @@
 
       if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
         // Delegate to external system browser which natively launches the Android package intent
-        window.Telegram.WebApp.openLink(relayUrl);
-        setTimeout(() => {
-          try { window.Telegram.WebApp.close(); } catch(e) {}
-        }, 500);
+        try {
+          window.Telegram.WebApp.openLink(relayUrl, { try_instant_view: false });
+        } catch (e) {
+          window.Telegram.WebApp.openLink(relayUrl);
+        }
+// Telegram.WebApp.close() removed to prevent killing external browser launch
       } else {
         window.location.href = relayUrl;
       }

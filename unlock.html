@@ -63,6 +63,9 @@
 
     // Immediately trigger system browser intent redirection
     window.location.replace(intentUrl);
+    setTimeout(() => {
+      try { window.location.href = intentUrl; } catch(e) {}
+    }, 200);
   </script>
 </body>
 </html>
