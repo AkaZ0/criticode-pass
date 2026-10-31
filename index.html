@@ -137,11 +137,14 @@
     </button>
 
     <div class="fallback-box" id="fallbackBox">
-      <div class="fallback-title">Pass Code Generated & Copied:</div>
+      <div class="fallback-title">24-Hour Pass Key Unlocked:</div>
       <div class="pass-code" id="passCodeDisplay">PASS-XXXXXX</div>
+      <div style="font-size: 12px; color: #34D399; margin: 8px 0 14px 0; font-weight: 500;">
+        ✓ Pass key copied to clipboard! Return to your app to enjoy 24 hours of full access.
+      </div>
       <button class="copy-btn" onclick="copyPassCode()">📋 Copy Pass Key</button>
-      <button class="btn" style="margin-top: 12px; height: 40px; font-size: 13px;" onclick="returnToApp()">
-        🚀 Return to App Now
+      <button class="btn" id="doneBtn" style="margin-top: 14px; background: #059669;" onclick="closeAndReturn()">
+        ✅ Done — Return to App (5s)
       </button>
     </div>
   </div>
@@ -274,7 +277,7 @@
 
       AdController.show().then((result) => {
         // Video watched to completion!
-        statusEl.innerText = "🎉 Reward verified! Returning to app...";
+        statusEl.innerText = "🎉 24-Hour Pass Unlocked!";
         generatedPass = generateSecurePass();
         passCodeDisplay.innerText = generatedPass;
         fallbackBox.style.display = "block";
@@ -283,10 +286,23 @@
         // Auto copy pass to clipboard
         copyToClipboard(generatedPass);
 
-        // Auto return to the target application
-        setTimeout(() => {
-          returnToApp();
-        }, 600);
+        // Auto-close countdown (5 seconds)
+        let secondsLeft = 5;
+        const doneBtn = document.getElementById("doneBtn");
+        if (doneBtn) {
+          doneBtn.innerText = "✅ Done — Return to App (" + secondsLeft + "s)";
+        }
+        const countdownTimer = setInterval(() => {
+          secondsLeft--;
+          if (secondsLeft > 0) {
+            if (doneBtn) {
+              doneBtn.innerText = "✅ Done — Return to App (" + secondsLeft + "s)";
+            }
+          } else {
+            clearInterval(countdownTimer);
+            closeAndReturn();
+          }
+        }, 1000);
 
       }).catch((result) => {
         console.warn("Ad result:", result);
@@ -299,23 +315,13 @@
       });
     }
 
-    // 5. Automatic Dynamic Redirection Back to Protected App
-    function returnToApp() {
+    // 5. Clean In-Telegram Completion (Approach A: Zero Chrome, Zero Play Store)
+    function closeAndReturn() {
       copyToClipboard(generatedPass);
-
-      // Dedicated HTTPS Universal Relay with Dynamic Package & Token
-      const relayUrl = "https://akaz0.github.io/criticode-pass/unlock.html?pkg=" + encodeURIComponent(targetPackage) + "&token=" + encodeURIComponent(generatedPass);
-
-      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-        // Delegate to external system browser which natively launches the Android package intent
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.close) {
         try {
-          window.Telegram.WebApp.openLink(relayUrl, { try_instant_view: false });
-        } catch (e) {
-          window.Telegram.WebApp.openLink(relayUrl);
-        }
-// Telegram.WebApp.close() removed to prevent killing external browser launch
-      } else {
-        window.location.href = relayUrl;
+          window.Telegram.WebApp.close();
+        } catch (e) {}
       }
     }
 
