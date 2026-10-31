@@ -143,15 +143,13 @@
   </div>
 
   <script>
-    // =========================================================================
-    // CONFIGURATION: Wired with your Adsgram Block ID 57101
-    // =========================================================================
     const ADSGRAM_BLOCK_ID = "57101";
-    // Set to true while testing (shows instant test ads). Set to false when ready for real earnings!
     const DEBUG_MODE = false;
 
     let generatedPass = "";
     let tgSession = "";
+    let AdController = null;
+    let autoTriggered = false;
 
     // 1. Initialize Telegram WebApp
     if (window.Telegram && window.Telegram.WebApp) {
@@ -170,10 +168,7 @@
     const fallbackBox = document.getElementById("fallbackBox");
     const passCodeDisplay = document.getElementById("passCodeDisplay");
 
-    statusEl.innerText = "Ready. Tap below to watch video.";
-
     // 2. Initialize Adsgram Controller
-    let AdController = null;
     try {
       if (window.Adsgram) {
         AdController = window.Adsgram.init({
@@ -196,18 +191,16 @@
 
     // 3. Watch Video & Reward Handler
     function watchVideo() {
-      watchBtn.disabled = true;
-      statusEl.innerText = "Loading sponsored video...";
-
       if (!AdController) {
-        alert("Adsgram SDK not loaded. Please disable AdBlock if active.");
+        statusEl.innerText = "Error loading ad network. Please try again.";
         watchBtn.disabled = false;
-        statusEl.innerText = "Error loading ad.";
         return;
       }
 
+      watchBtn.disabled = true;
+      statusEl.innerText = "Loading sponsored video...";
+
       AdController.show().then((result) => {
-        // User finished watching the video!
         statusEl.innerText = "✅ Reward verified! Generating 24h pass...";
         generatedPass = generateSecurePass();
         passCodeDisplay.innerText = generatedPass;
@@ -223,9 +216,9 @@
         console.warn("Ad result:", result);
         watchBtn.disabled = false;
         if (result && result.error) {
-          statusEl.innerText = "No ad available right now. Please try again.";
+          statusEl.innerText = "No ad available right now. Tap below to retry.";
         } else {
-          statusEl.innerText = "⚠️ Video not completed. Please watch until the end.";
+          statusEl.innerText = "⚠️ Video not completed. Tap below to watch again.";
         }
       });
     }
@@ -242,6 +235,18 @@
         prompt("Copy this pass key:", generatedPass);
       });
     }
+
+    // 4. AUTOPLAY: Trigger rewarded ad immediately on load
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        if (!autoTriggered && AdController) {
+          autoTriggered = true;
+          watchVideo();
+        } else {
+          statusEl.innerText = "Ready. Tap below to watch video.";
+        }
+      }, 400);
+    });
   </script>
 </body>
 </html>
