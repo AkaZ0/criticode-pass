@@ -26,20 +26,21 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
     }
     .card {
       background: #10192A;
       border: 1px solid #1E293B;
-      border-radius: 16px;
-      padding: 28px 24px;
-      max-width: 360px;
+      border-radius: 20px;
+      padding: 28px 22px;
+      max-width: 380px;
       width: 100%;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s ease;
     }
     .shield-icon {
-      font-size: 48px;
+      font-size: 46px;
       margin-bottom: 12px;
     }
     h1 {
@@ -52,15 +53,15 @@
       font-size: 13px;
       color: #94A3B8;
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
     .status-box {
       background: #1E293B;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 12px;
       font-size: 13px;
       color: #E2E8F0;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       min-height: 44px;
       display: flex;
       align-items: center;
@@ -70,9 +71,9 @@
       background: #0284C7;
       color: #FFFFFF;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       width: 100%;
-      height: 46px;
+      height: 48px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
@@ -91,41 +92,107 @@
       color: #64748B;
       cursor: not-allowed;
     }
-    .fallback-box {
-      margin-top: 20px;
+
+    /* Screen 2: Unlocked 3-Step Success Popup */
+    #screenUnlocked {
       display: none;
-      background: #131D2D;
-      border: 1px dashed #0284C7;
-      border-radius: 10px;
+    }
+    .badge-success {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10B981;
+      color: #34D399;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 18px;
+      text-align: left;
+    }
+    .step-item {
+      background: #131E31;
+      border: 1px solid #1E293B;
+      border-radius: 12px;
       padding: 14px;
     }
-    .fallback-title {
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #0284C7;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F8FAFC;
+    }
+    .step-desc {
       font-size: 12px;
       color: #94A3B8;
-      margin-bottom: 6px;
+      line-height: 1.4;
+      margin-left: 34px;
     }
-    .pass-code {
-      font-size: 18px;
-      font-weight: 700;
-      color: #38BDF8;
-      letter-spacing: 1.5px;
-      user-select: all;
-    }
-    .copy-btn {
-      margin-top: 10px;
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: #E2E8F0;
-      padding: 8px 16px;
-      font-size: 12px;
-      border-radius: 6px;
+    .copy-action-btn {
+      background: #059669;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .copy-action-btn:active {
+      transform: scale(0.98);
+      background: #047857;
+    }
+    .copy-action-btn.copied {
+      background: #10B981;
+    }
+    .copy-toast {
+      display: none;
+      font-size: 11px;
+      color: #34D399;
+      margin-top: 6px;
+      text-align: center;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <!-- ============================================================ -->
+  <!-- SCREEN 1: INITIAL STATE (Watch Video)                         -->
+  <!-- ============================================================ -->
+  <div class="card" id="screenInitial">
     <div class="shield-icon">🛡️</div>
     <h1>CritiCode Sponsor Pass</h1>
     <p class="desc">Watch a short sponsored video to claim your <strong>24-hour full access pass</strong>.</p>
@@ -135,17 +202,54 @@
     <button class="btn" id="watchBtn" onclick="watchVideo()">
       🎬 Watch Sponsored Video
     </button>
+  </div>
 
-    <div class="fallback-box" id="fallbackBox">
-      <div class="fallback-title">24-Hour Pass Key Unlocked:</div>
-      <div class="pass-code" id="passCodeDisplay">PASS-XXXXXX</div>
-      <div style="font-size: 12px; color: #34D399; margin: 8px 0 14px 0; font-weight: 500;">
-        ✓ Pass key copied to clipboard! Return to your app to enjoy 24 hours of full access.
+  <!-- ============================================================ -->
+  <!-- SCREEN 2: 3-STEP PERSISTENT SUCCESS POPUP (Unlocked State)    -->
+  <!-- ============================================================ -->
+  <div class="card" id="screenUnlocked">
+    <div class="shield-icon">🎉</div>
+    <div class="badge-success">✓ 24-Hour Pass Unlocked</div>
+    <h1 style="color: #38BDF8; margin-bottom: 4px;">Activation Key Secured!</h1>
+    <p class="desc" style="margin-bottom: 12px;">Complete the 3 quick steps below to activate:</p>
+
+    <div class="steps-container">
+
+      <!-- STEP 1: Copy Pass Key (Physical user gesture writes to clipboard) -->
+      <div class="step-item" style="border-color: #059669; background: #0F2327;">
+        <div class="step-header">
+          <div class="step-num" style="background: #10B981;">1</div>
+          <div class="step-title" style="color: #34D399;">Copy Pass Key</div>
+        </div>
+        <div class="step-desc">Tap below to copy your activation key to your device clipboard.</div>
+        <button class="copy-action-btn" id="copyStepBtn" onclick="handleCopyStep()">
+          📋 1. Copy Pass Key
+        </button>
+        <div class="copy-toast" id="copyToast">✓ Key copied to clipboard! Now proceed to Step 2 below:</div>
       </div>
-      <button class="copy-btn" onclick="copyPassCode()">📋 Copy Pass Key</button>
-      <button class="btn" id="doneBtn" style="margin-top: 14px; background: #059669;" onclick="closeAndReturn()">
-        ✅ Done — Return to App (5s)
-      </button>
+
+      <!-- STEP 2: Return to App (Dynamic App Name) -->
+      <div class="step-item">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-title" id="step2Title">Return to App</div>
+        </div>
+        <div class="step-desc" id="step2Desc">
+          Press your phone's <strong>Back button</strong> (or switch from recent apps) to return to the app.
+        </div>
+      </div>
+
+      <!-- STEP 3: Automatic Verification -->
+      <div class="step-item">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <div class="step-title">Get Automatic Verification</div>
+        </div>
+        <div class="step-desc">
+          Gatekeeper will automatically detect your key from the clipboard and unlock full access immediately!
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -168,28 +272,42 @@
       startParam = urlParams.get('startapp') || urlParams.get('tgWebAppStartParam') || "";
     }
 
-    // 2. Dynamically decode the target application's package name
-    let targetPackage = "com.rhmsoft.code"; // Default fallback
-    if (startParam) {
+    // 2. Dynamically determine Target Application Name
+    function resolveTargetAppName() {
       try {
-        let b64 = startParam;
-        if (b64.startsWith("PKG_")) {
-          b64 = b64.substring(4);
-        }
-        b64 = b64.replace(/-/g, '+').replace(/_/g, '/');
-        while (b64.length % 4) { b64 += '='; }
-        const decoded = atob(b64);
-        if (decoded && decoded.includes('.')) {
-          targetPackage = decoded.trim();
+        if (startParam) {
+          let b64 = startParam;
+          if (b64.startsWith("PKG_")) {
+            b64 = b64.substring(4);
+          }
+          b64 = b64.replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) { b64 += '='; }
+          const decoded = atob(b64);
+          if (decoded === "com.rhmsoft.code") return "Code Editor";
+          if (decoded && decoded.includes('.')) {
+            const parts = decoded.split('.');
+            const last = parts[parts.length - 1];
+            return last.charAt(0).toUpperCase() + last.slice(1);
+          }
         }
       } catch (e) {
-        console.warn("Could not base64 decode start_param, checking plain text:", e);
-        if (startParam.includes('.')) {
-          targetPackage = startParam.trim();
-        }
+        console.warn("Could not decode app name from startParam:", e);
       }
+      return "Code Editor"; // Default fallback
     }
-    console.log("CritiCode Dynamic Target Package:", targetPackage);
+
+    const appName = resolveTargetAppName();
+    console.log("CritiCode Dynamic Target App Name:", appName);
+
+    // Update Step 2 text with dynamic app name
+    const step2Title = document.getElementById("step2Title");
+    const step2Desc = document.getElementById("step2Desc");
+    if (step2Title) {
+      step2Title.innerText = "Return to " + appName;
+    }
+    if (step2Desc) {
+      step2Desc.innerHTML = "Press your phone's <strong>Back button</strong> (or switch from recent apps) to return to <strong>" + appName + "</strong>.";
+    }
 
     // 3. Initialize Adsgram Controller
     const ADSGRAM_BLOCK_ID = "57101";
@@ -197,10 +315,12 @@
     let generatedPass = "";
     let autoStarted = false;
 
+    const screenInitial = document.getElementById("screenInitial");
+    const screenUnlocked = document.getElementById("screenUnlocked");
     const statusEl = document.getElementById("statusText");
     const watchBtn = document.getElementById("watchBtn");
-    const fallbackBox = document.getElementById("fallbackBox");
-    const passCodeDisplay = document.getElementById("passCodeDisplay");
+    const copyStepBtn = document.getElementById("copyStepBtn");
+    const copyToast = document.getElementById("copyToast");
 
     function initAndAutoStart() {
       if (window.Adsgram && !AdController) {
@@ -246,9 +366,11 @@
     }
 
     function copyToClipboard(text) {
+      let copied = false;
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).catch(() => {});
+          navigator.clipboard.writeText(text);
+          copied = true;
         }
       } catch(e) {}
       try {
@@ -260,7 +382,9 @@
         ta.select();
         document.execCommand("copy");
         document.body.removeChild(ta);
+        copied = true;
       } catch(e) {}
+      return copied;
     }
 
     // 4. Watch Video & Reward Handler
@@ -276,33 +400,21 @@
       }
 
       AdController.show().then((result) => {
-        // Video watched to completion!
-        statusEl.innerText = "🎉 24-Hour Pass Unlocked!";
+        // Video watched to 100% completion!
         generatedPass = generateSecurePass();
-        passCodeDisplay.innerText = generatedPass;
-        fallbackBox.style.display = "block";
-        watchBtn.style.display = "none";
 
-        // Auto copy pass to clipboard
-        copyToClipboard(generatedPass);
-
-        // Auto-close countdown (5 seconds)
-        let secondsLeft = 5;
-        const doneBtn = document.getElementById("doneBtn");
-        if (doneBtn) {
-          doneBtn.innerText = "✅ Done — Return to App (" + secondsLeft + "s)";
+        // 1. Hide Screen 1 completely (zero leftover text)
+        if (screenInitial) {
+          screenInitial.style.display = "none";
         }
-        const countdownTimer = setInterval(() => {
-          secondsLeft--;
-          if (secondsLeft > 0) {
-            if (doneBtn) {
-              doneBtn.innerText = "✅ Done — Return to App (" + secondsLeft + "s)";
-            }
-          } else {
-            clearInterval(countdownTimer);
-            closeAndReturn();
-          }
-        }, 1000);
+
+        // 2. Show Screen 2 (3-Step Persistent Success Card)
+        if (screenUnlocked) {
+          screenUnlocked.style.display = "block";
+        }
+
+        // 3. Attempt initial copy (if browser allows)
+        copyToClipboard(generatedPass);
 
       }).catch((result) => {
         console.warn("Ad result:", result);
@@ -315,21 +427,24 @@
       });
     }
 
-    // 5. Clean In-Telegram Completion (Approach A: Zero Chrome, Zero Play Store)
-    function closeAndReturn() {
-      copyToClipboard(generatedPass);
-      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.close) {
-        try {
-          window.Telegram.WebApp.close();
-        } catch (e) {}
+    // 5. Step 1: Copy Pass Key Button Handler (Direct Physical User Gesture)
+    function handleCopyStep() {
+      if (!generatedPass) {
+        generatedPass = generateSecurePass();
       }
-    }
-
-    function copyPassCode() {
       copyToClipboard(generatedPass);
-      alert("Pass key copied! (" + generatedPass + ")");
+
+      // Visual feedback: button turns green and shows checkmark
+      if (copyStepBtn) {
+        copyStepBtn.classList.add("copied");
+        copyStepBtn.innerHTML = "✅ Pass Key Copied to Clipboard!";
+      }
+      if (copyToast) {
+        copyToast.style.display = "block";
+      }
+
+      // DO NOT DISMISS OR CLOSE POPUP! It stays permanently visible!
     }
   </script>
 </body>
 </html>
-
