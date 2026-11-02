@@ -24,7 +24,7 @@
       border: 1px solid #1E293B;
       border-radius: 16px;
       padding: 28px 24px;
-      max-width: 360px;
+      max-width: 380px;
       width: 100%;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     }
@@ -33,7 +33,7 @@
       margin-bottom: 12px;
     }
     h2 { font-size: 20px; margin: 0 0 8px 0; color: #38BDF8; font-weight: 700; }
-    p { font-size: 14px; color: #94A3B8; margin: 0 0 20px 0; line-height: 1.5; }
+    p { font-size: 14px; color: #94A3B8; margin: 0 0 16px 0; line-height: 1.5; }
     .badge {
       display: inline-block;
       background: rgba(16, 185, 129, 0.15);
@@ -45,27 +45,158 @@
       border-radius: 20px;
       margin-bottom: 16px;
     }
+    .pass-display {
+      background: #090D14;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #38BDF8;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      user-select: all;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      height: 48px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-primary {
+      background: #0284C7;
+      color: #FFFFFF;
+      border: none;
+    }
+    .btn-primary:active {
+      background: #0369A1;
+      transform: scale(0.98);
+    }
+    .btn-secondary {
+      background: #1E293B;
+      color: #E2E8F0;
+      border: 1px solid #334155;
+      font-size: 13px;
+      height: 42px;
+    }
+    .btn-secondary:active {
+      background: #334155;
+      transform: scale(0.98);
+    }
+    .btn-secondary.copied {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10B981;
+      color: #34D399;
+    }
     .instruction-box {
       background: #131E31;
       border: 1px solid #1E293B;
       border-radius: 10px;
-      padding: 14px;
-      font-size: 13px;
-      color: #E2E8F0;
+      padding: 12px;
+      font-size: 12px;
+      color: #94A3B8;
       line-height: 1.5;
       text-align: left;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="shield-icon">🛡️</div>
-    <div class="badge">✓ Pass Key Activated</div>
-    <h2>Return to Your App</h2>
-    <p>Your 24-hour pass has been recorded.</p>
+    <div class="badge">✓ Sponsor Task Verified</div>
+    <h2>24-Hour Pass Unlocked</h2>
+    <p>Your 24-hour pass has been generated and copied to your clipboard.</p>
+    
+    <div id="passDisplay" class="pass-display">GENERATING...</div>
+
+    <a id="openAppBtn" class="btn btn-primary" href="criticode://unlock">
+      🚀 Open App & Unlock
+    </a>
+
+    <button id="copyBtn" class="btn btn-secondary" onclick="manualCopy()">
+      📋 Copy Pass Key Again
+    </button>
+
     <div class="instruction-box">
-      👉 Press your phone's <strong>Back button</strong> or switch to your application from recent apps to enjoy full access!
+      💡 <strong>Tip:</strong> If the app doesn't open automatically, tap the blue button above or press your phone's <strong>Back button / X</strong> to return. Gatekeeper will auto-detect the key and unlock!
     </div>
   </div>
+
+  <script>
+    function generateSecurePass() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return "PASS-" + code;
+    }
+
+    const passKey = generateSecurePass();
+    const passEl = document.getElementById("passDisplay");
+    if (passEl) passEl.innerText = passKey;
+
+    const openBtn = document.getElementById("openAppBtn");
+    const deepLink = "criticode://unlock?token=" + encodeURIComponent(passKey);
+    if (openBtn) openBtn.href = deepLink;
+
+    function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) {}
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        return true;
+      } catch (e) {}
+      return false;
+    }
+
+    // Auto copy on load
+    copyToClipboard(passKey);
+
+    // Auto redirect to deep link after short delay to ensure clipboard is written
+    setTimeout(() => {
+      try {
+        window.location.href = deepLink;
+      } catch (e) {
+        console.warn("Auto-redirect blocked:", e);
+      }
+    }, 300);
+
+    function manualCopy() {
+      copyToClipboard(passKey);
+      const copyBtn = document.getElementById("copyBtn");
+      if (copyBtn) {
+        copyBtn.classList.add("copied");
+        copyBtn.innerHTML = "✅ Pass Key Copied!";
+        setTimeout(() => {
+          copyBtn.innerHTML = "📋 Copy Pass Key Again";
+          copyBtn.classList.remove("copied");
+        }, 2500);
+      }
+    }
+  </script>
 </body>
 </html>
