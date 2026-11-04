@@ -1,1219 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>CritiCode Security Enclave — VMP Architecture &amp; 24-Hour Sponsor Portal</title>
+  <title>CritiCode Security Enclave — 24-Hour Sponsor Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description"
-    content="CritiCode Runtime Application Self-Protection (RASP), C++20 Virtual Machine Protection (VMP), and Hardware TEE Attestation Documentation &amp; Sponsor Portal.">
-
-  <!-- ========================================================================== -->
-  <!-- AD NETWORK SITE VERIFICATION META TAGS (PASTE YOUR META TAGS BELOW)        -->
-  <!-- ========================================================================== -->
-  <!-- HilltopAds Meta Verification Tag: -->
-  <!-- <meta name="hilltopads-site-verification" content="PASTE_HILLTOPADS_CODE_HERE" /> -->
-  <!-- OnClickA Meta Verification Tag: -->
-  <!-- <meta name="onclicka-site-verification" content="PASTE_ONCLICKA_CODE_HERE" /> -->
-  <!-- Clickadu Meta Verification Tag: -->
-  <!-- <meta name="clickadu-site-verification" content="PASTE_CLICKADU_CODE_HERE" /> -->
-
+  <meta name="description" content="CritiCode Runtime Application Self-Protection (RASP) & Sponsor Portal.">
+  <meta name="referrer" content="no-referrer-when-downgrade">
   <style>
     :root {
       --bg-deep: #090D14;
       --bg-card: #10192A;
-      --bg-elevated: #152238;
       --border-subtle: #1E293B;
-      --border-cyan: #0284C7;
       --accent-cyan: #38BDF8;
       --accent-blue: #0284C7;
-      --accent-green: #10B981;
-      --accent-amber: #F59E0B;
       --accent-red: #EF4444;
       --text-main: #F8FAFC;
       --text-muted: #94A3B8;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-
     body {
-      background-color: var(--bg-deep);
+      background: var(--bg-deep);
       color: var(--text-main);
       min-height: 100vh;
-      padding: 58px 12px 36px 12px;
-      line-height: 1.5;
-      overflow-x: hidden;
-    }
-
-    body.scroll-locked {
-      overflow: hidden !important;
-      touch-action: none !important;
-    }
-
-    /* Sticky Top Progress Header */
-    .sticky-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 900;
-      background: rgba(9, 13, 20, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 10px 14px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      justify-content: center;
+      padding: 20px;
     }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      white-space: nowrap;
-    }
-
-    .header-status-pill {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(2, 132, 199, 0.18);
-      border: 1px solid var(--border-cyan);
-      color: #E0F2FE;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .header-status-pill.ready {
-      background: rgba(16, 185, 129, 0.18);
-      border-color: var(--accent-green);
-      color: #6EE7B7;
-    }
-
-    .container {
-      max-width: 440px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* Hero Banner */
-    .hero-card {
-      background: linear-gradient(145deg, #10192A 0%, #0D1524 100%);
+    .enclave-card {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 18px 16px;
+      border-radius: 18px;
+      padding: 28px 20px;
+      max-width: 400px;
+      width: 100%;
       text-align: center;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .enclave-badge {
+      display: inline-block;
       font-size: 11px;
       font-weight: 700;
-      color: var(--accent-cyan);
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
       padding: 4px 12px;
       border-radius: 999px;
-      margin-bottom: 8px;
-    }
-
-    .hero-card h1 {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
-
-    .hero-card p {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* Checkpoint & Ad Containers */
-    .checkpoint-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 14px;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .checkpoint-card.active-dwell {
-      border-color: var(--accent-amber);
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.3);
-    }
-
-    .checkpoint-card.verified {
-      border-color: var(--accent-green);
-    }
-
-    .slot-label {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .slot-badge {
-      color: var(--accent-cyan);
-      font-family: monospace;
-    }
-
-    .ad-unit-box {
-      width: 100%;
-      min-height: 100px;
-      background: #0B111E;
-      border: 1px solid #1E293B;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 10px;
-    }
-
-    .ad-unit-box.rect-box {
-      min-height: 250px;
-    }
-
-    .ad-unit-box.video-box {
-      min-height: 195px;
-      background: #070B12;
-      border-color: #1E3A5F;
-    }
-
-    /* Live Interactive Mainstream Sponsor Canvas (Active while external network tags load or run) */
-    .sponsor-live-surface {
-      width: 100%;
-      height: 100%;
-      min-height: inherit;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      text-align: center;
-      position: relative;
-    }
-
-    .video-stream-canvas {
-      width: 100%;
-      height: 155px;
-      border-radius: 8px;
-      background: #05080F;
-      display: block;
-    }
-
-    .video-stream-footer {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 6px;
-      font-size: 11px;
-      color: #CBD5E1;
-    }
-
-    .live-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(2, 132, 199, 0.2);
-      border: 1px solid #0284C7;
-      color: #38BDF8;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 999px;
-    }
-
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #38BDF8;
-      animation: pulseDot 1.2s infinite ease-in-out;
-    }
-
-    @keyframes pulseDot {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.35;
-        transform: scale(0.8);
-      }
-    }
-
-    /* Dwell Progress Bar */
-    .dwell-bar-wrap {
-      background: #090D14;
-      border: 1px solid #1E293B;
-      border-radius: 10px;
-      padding: 8px 10px;
-    }
-
-    .dwell-status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      color: #E2E8F0;
-      margin-bottom: 6px;
-    }
-
-    .dwell-track {
-      width: 100%;
-      height: 6px;
-      background: #1E293B;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .dwell-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #F59E0B, #38BDF8);
-      transition: width 0.12s linear;
-    }
-
-    .checkpoint-card.verified .dwell-fill {
-      background: var(--accent-green);
-      width: 100% !important;
-    }
-
-    /* Technical Documentation Cards (Ensures 100% Mainstream Publisher Approval) */
-    .doc-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 14px 16px;
-      text-align: left;
-    }
-
-    .doc-tag {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .doc-card h2 {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
-
-    .doc-card p {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.55;
-    }
-
-    /* Locked Gate Overlay for Next Sections */
-    .gate-locked-hint {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px dashed var(--accent-amber);
-      color: #FDE68A;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    /* Final Dual-Video Arena */
-    .final-arena-card {
-      background: linear-gradient(180deg, #10192A 0%, #0B1320 100%);
-      border: 1px solid var(--border-cyan);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7);
-    }
-
-    .dual-video-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .dual-video-grid .ad-unit-box.video-box {
-      min-height: 170px;
-      margin-bottom: 0;
-    }
-
-    /* 15-Second Timer & Action Box */
-    .timer-control-box {
-      background: #090D14;
-      border: 1px solid #1E293B;
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .countdown-ring-row {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .ring-svg {
-      width: 52px;
-      height: 52px;
-      transform: rotate(-90deg);
-    }
-
-    .ring-bg {
-      fill: none;
-      stroke: #1E293B;
-      stroke-width: 5;
-    }
-
-    .ring-fg {
-      fill: none;
-      stroke: #38BDF8;
-      stroke-width: 5;
-      stroke-linecap: round;
-      stroke-dasharray: 138.2;
-      stroke-dashoffset: 0;
-      transition: stroke-dashoffset 0.2s linear;
-    }
-
-    .timer-text-col {
-      text-align: left;
-    }
-
-    .timer-big-sec {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--accent-cyan);
-      font-family: monospace;
-    }
-
-    .timer-sub-note {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .btn-main {
-      width: 100%;
-      height: 48px;
-      border: none;
-      border-radius: 12px;
-      background: var(--accent-blue);
-      color: #FFFFFF;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s, transform 0.1s;
-      text-decoration: none;
-    }
-
-    .btn-main:active:not(:disabled) {
-      transform: scale(0.98);
-      background: #0369A1;
-    }
-
-    .btn-main:disabled {
-      background: #1E293B;
-      color: #64748B;
-      cursor: not-allowed;
-    }
-
-    .btn-main.btn-unlock-ready {
-      background: var(--accent-green);
-      color: #FFFFFF;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Unlocked Pass Card inside Final Arena */
-    #unlockedResultBox {
-      display: none;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #1E293B;
-    }
-
-    .pass-code-pill {
-      background: #05080F;
-      border: 1px solid #10B981;
-      border-radius: 8px;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 16px;
-      font-weight: 800;
-      color: #34D399;
-      letter-spacing: 2px;
-      margin: 8px 0 10px 0;
-      user-select: all;
-    }
-
-    .btn-secondary {
-      width: 100%;
-      height: 40px;
-      border-radius: 10px;
-      border: 1px solid #334155;
-      background: #152238;
-      color: #E2E8F0;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    /* Anti-AdBlocker Fullscreen Lock Modal */
-    #antiAdblockModal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(9, 13, 20, 0.97);
-      backdrop-filter: blur(12px);
-      padding: 20px;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .adblock-card {
-      background: #131B2E;
-      border: 2px solid var(--accent-red);
-      border-radius: 18px;
-      padding: 24px 18px;
-      max-width: 390px;
-      width: 100%;
-      box-shadow: 0 20px 50px rgba(239, 68, 68, 0.25);
-    }
-
-    .adblock-card h2 {
-      color: #FCA5A5;
-      font-size: 18px;
-      margin: 10px 0 8px 0;
-    }
-
-    .adblock-card p {
-      color: #CBD5E1;
-      font-size: 13px;
+      background: rgba(2, 132, 199, 0.18);
+      border: 1px solid var(--accent-blue);
+      color: #E0F2FE;
       margin-bottom: 14px;
     }
-
-    .adblock-reason-box {
-      background: #090D14;
-      border: 1px solid #7F1D1D;
-      color: #F87171;
-      font-family: monospace;
-      font-size: 11px;
-      padding: 10px;
-      border-radius: 8px;
+    .enclave-card h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    .enclave-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
       margin-bottom: 16px;
-      text-align: left;
+    }
+    .spinner {
+      border: 3px solid rgba(56, 189, 248, 0.18);
+      border-top: 3px solid var(--accent-cyan);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.75s linear infinite;
+      margin: 18px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .status-text {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      font-family: monospace;
     }
   </style>
 </head>
-
 <body>
-
-  <!-- Hidden Bait Node for Chromium Cosmetic Ad-Blocker Detection -->
-  <div id="ad-bait-canary"
-    class="adsbox pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text_ads text-ads text-ad-links ad-banner doubleclick ad-placement"
-    style="width: 300px; height: 250px; position: absolute; left: -9999px; top: -9999px; pointer-events: none;">&nbsp;
-  </div>
-
-  <!-- Sticky Top Verification Bar -->
-  <header class="sticky-header">
-    <div class="header-brand">
-      <span>🛡️</span>
-      <span>CritiCode Enclave</span>
-    </div>
-    <div id="topProgressPill" class="header-status-pill">
-      Step 1/3: Hold on Top Sponsor (3.5s)
-    </div>
-  </header>
-
-  <main class="container">
-
-    <!-- Hero Introduction -->
-    <section class="hero-card">
-      <div class="hero-badge">⚡ HARDWARE TEE &amp; VMP SPONSOR PORTAL</div>
-      <h1>Claim Your 24-Hour Sponsor Pass</h1>
-      <p>Verify the 2 sponsor checkpoints while scrolling down, then start the <strong>15-second video timer</strong> at
-        the bottom for instant auto-unlock.</p>
-    </section>
-
-    <!-- ====================================================================== -->
-    <!-- CHECKPOINT 1: TOP AADS BANNER + VIDEO SLOT #1 (3.5s DWELL REQUIRED)    -->
-    <!-- ====================================================================== -->
-    <section id="checkpointCard1" class="checkpoint-card">
-      <div class="slot-label">
-        <span>Sponsor Checkpoint #1 (Banner + Video)</span>
-        <span id="cp1Badge" class="slot-badge">3.5s View Required</span>
-      </div>
-
-      <!-- SLOT 1: AADS (aads.com) Clean Mainstream Adaptive Banner (320x100) -->
-      <div id="ad-slot-1" class="ad-unit-box" data-slot-name="AADS-Top-Banner">
-        <!-- PASTE YOUR AADS <iframe data-aa="..."> CODE BELOW (OR KEEP LIVE FALLBACK) -->
-        <iframe data-aa="2430502" src="https://acceptable.a-ads.com/2430502/?size=Adaptive"
-          style="border:0; padding:0; width:100%; height:100px; overflow:hidden; display:block; margin:auto;"
-          onload="window.__onAdTagLoad('ad-slot-1')"
-          onerror="window.__onAdTagError('ad-slot-1', 'AADS Top Banner blocked')">
-        </iframe>
-      </div>
-
-      <!-- SLOT 2: Mainstream Outstream Video Slot #1 (HilltopAds / Clickadu) -->
-      <div id="video-slot-1" class="ad-unit-box video-box" data-slot-name="Mainstream-Video-1">
-        <!-- PASTE HILLTOPADS / CLICKADU VIDEO SCRIPT HERE -->
-        <div class="sponsor-live-surface">
-          <canvas id="vCanvas1" class="video-stream-canvas" width="360" height="155"></canvas>
-          <div class="video-stream-footer">
-            <span class="live-pill"><span class="live-dot"></span> SPONSOR VIDEO #1</span>
-            <span id="v1TimeLabel" style="font-family: monospace;">HD STREAM • ACTIVE</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="dwell-bar-wrap">
-        <div class="dwell-status-row">
-          <span id="cp1StatusText">⏳ Hold here in view to verify Slot #1...</span>
-          <span id="cp1TimeText" style="font-family: monospace; color: #38BDF8;">3.5s</span>
-        </div>
-        <div class="dwell-track">
-          <div id="cp1Fill" class="dwell-fill"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Technical Article 1 (Legitimate Publisher Content) -->
-    <article class="doc-card">
-      <div class="doc-tag">Architecture Brief • Section 01</div>
-      <h2>C++20 Virtual Machine Protection (VMP) &amp; Scratchpad Isolation</h2>
-      <p>
-        CritiCode protects sensitive mobile application algorithms by compiling high-value routines into polymorphic
-        virtual instructions executed inside an isolated 32-register C++20 Virtual CPU. Bytecode slices are decrypted
-        in-place inside a 16 KB thread-local anonymous memory page guarded with <code>MADV_DONTDUMP</code> and scrubbed
-        immediately after execution.
-      </p>
-    </article>
-
-    <!-- ====================================================================== -->
-    <!-- CHECKPOINT 2: MID-FEED MAINSTREAM RECTANGLE BANNER (2.5s DWELL)        -->
-    <!-- ====================================================================== -->
-    <section id="checkpointCard2" class="checkpoint-card">
-      <div class="slot-label">
-        <span>Sponsor Checkpoint #2 (Mid-Feed Display)</span>
-        <span id="cp2Badge" class="slot-badge">Locked until #1</span>
-      </div>
-
-      <!-- SLOT 3: AADS / Mainstream 300x250 Medium Rectangle -->
-      <div id="ad-slot-2" class="ad-unit-box rect-box" data-slot-name="AADS-Mid-Rectangle">
-        <iframe data-aa="2430502" src="https://acceptable.a-ads.com/2430502/?size=300x250"
-          style="width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;"
-          onload="window.__onAdTagLoad('ad-slot-2')"
-          onerror="window.__onAdTagError('ad-slot-2', 'AADS Mid Rectangle blocked')">
-        </iframe>
-      </div>
-
-      <div class="dwell-bar-wrap">
-        <div class="dwell-status-row">
-          <span id="cp2StatusText">🔒 Complete Checkpoint #1 above first</span>
-          <span id="cp2TimeText" style="font-family: monospace; color: #38BDF8;">2.5s</span>
-        </div>
-        <div class="dwell-track">
-          <div id="cp2Fill" class="dwell-fill"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Technical Article 2 (Legitimate Publisher Content) -->
-    <article class="doc-card">
-      <div class="doc-tag">Silicon Root-of-Trust • Section 02</div>
-      <h2>Widevine L1 &amp; Hardware KeyStore TEE Lease Binding</h2>
-      <p>
-        Every 24-Hour Sponsor Pass is cryptographically tethered to the device's physical silicon identity using
-        Widevine Modular DRM hardware attestation and an unexportable <code>AndroidKeyStore</code> HMAC-SHA256 seal,
-        ensuring tamper-proof offline operation with zero network latency.
-      </p>
-    </article>
-
-    <!-- ====================================================================== -->
-    <!-- FINAL ARENA: DUAL-VIDEO PLAYBACK + 15-SECOND SCROLL-LOCKED TIMER       -->
-    <!-- ====================================================================== -->
-    <section id="finalVideoArena" class="final-arena-card">
-      <div class="slot-label" style="margin-bottom: 10px;">
-        <span style="color: #38BDF8;">🎬 Final Dual-Video Sponsor Arena</span>
-        <span id="finalArenaBadge" class="slot-badge">15s Scroll-Locked</span>
-      </div>
-
-      <div class="dual-video-grid">
-        <!-- SLOT 4: HilltopAds Mainstream Video Player #2 -->
-        <div id="video-slot-2" class="ad-unit-box video-box" data-slot-name="HilltopAds-Video-2">
-          <!-- PASTE HILLTOPADS IN-PAGE VIDEO / SLIDER TAG HERE -->
-          <div class="sponsor-live-surface">
-            <canvas id="vCanvas2" class="video-stream-canvas" width="360" height="140"></canvas>
-            <div class="video-stream-footer">
-              <span class="live-pill"><span class="live-dot"></span> HILLTOPADS VIDEO STREAM</span>
-              <span id="v2TimeLabel" style="font-family: monospace;">MAINSTREAM • READY</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- SLOT 5: OnClickA Mainstream Outstream Video Player #3 -->
-        <div id="video-slot-3" class="ad-unit-box video-box" data-slot-name="OnClickA-Video-3">
-          <!-- PASTE ONCLICKA OUTSTREAM VIDEO TAG HERE -->
-          <div class="sponsor-live-surface">
-            <canvas id="vCanvas3" class="video-stream-canvas" width="360" height="140"></canvas>
-            <div class="video-stream-footer">
-              <span class="live-pill"><span class="live-dot"></span> ONCLICKA OUTSTREAM VIDEO</span>
-              <span id="v3TimeLabel" style="font-family: monospace;">MAINSTREAM • READY</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 15-Second Interactive Countdown & Unlock Control -->
-      <div class="timer-control-box">
-        <div id="countdownRingRow" class="countdown-ring-row">
-          <svg class="ring-svg" viewBox="0 0 52 52">
-            <circle class="ring-bg" cx="26" cy="26" r="22"></circle>
-            <circle id="ringProgress" class="ring-fg" cx="26" cy="26" r="22"></circle>
-          </svg>
-          <div class="timer-text-col">
-            <div id="timerSecondsLabel" class="timer-big-sec">15.0s</div>
-            <div id="timerSubNote" class="timer-sub-note">Scroll locked while sponsor videos play...</div>
-          </div>
-        </div>
-
-        <button id="startTimerBtn" class="btn-main" disabled onclick="startFinalVideoCountdown()">
-          🔒 Verify Checkpoints #1 &amp; #2 Above First
-        </button>
-
-        <!-- Revealed at 0.0s -->
-        <div id="unlockedResultBox">
-          <div style="font-size: 12px; color: #34D399; font-weight: 700;">
-            ✓ 24-Hour Sponsor Pass Generated &amp; Copied to Clipboard!
-          </div>
-          <div id="passCodeDisplay" class="pass-code-pill">PASS-XXXXXXXX</div>
-          <a id="openAppDeepLinkBtn" class="btn-main btn-unlock-ready" href="criticode://unlock">
-            🚀 Open App &amp; Unlock 24-Hour Pass
-          </a>
-          <button id="manualCopyBtn" class="btn-secondary" onclick="copyGeneratedPassManual()">
-            📋 Copy Pass Key Again
-          </button>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ====================================================================== -->
-  <!-- LAYER 2 CHROMIUM ANTI-ADBLOCKER & DNS SINKHOLE LOCK MODAL              -->
-  <!-- ====================================================================== -->
-  <div id="antiAdblockModal">
-    <div class="adblock-card">
-      <div style="font-size: 44px;">🚫</div>
-      <h2>Ad-Blocker / Private DNS Detected</h2>
-      <p>
-        Chromium detected that one or more sponsor ad containers were blocked or intercepted. To claim your free
-        <strong>24-Hour Sponsor Pass</strong>, sponsor units must remain visible and unblocked.
-      </p>
-      <div id="adblockReasonText" class="adblock-reason-box">
-        Diagnostic: Checking container geometry and network reachability...
-      </div>
-      <p style="font-size: 12px; color: #94A3B8; text-align: left; margin-bottom: 16px;">
-        <strong>How to fix in 10 seconds:</strong><br>
-        1. Disable <strong>Private DNS</strong> (e.g. <code>dns.adguard.com</code> / NextDNS) in Android Settings &rarr;
-        Network &amp; Internet.<br>
-        2. Pause AdGuard / Blokada or Browser Shields, then tap below:
-      </p>
-      <button class="btn-main" onclick="window.location.reload()">
-        🔄 Re-Verify &amp; Reload Sponsor Portal
-      </button>
-    </div>
+  <div id="enclaveRoot" class="enclave-card">
+    <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+    <div class="enclave-badge">ZERO-SOURCE HARDWARE ENCLAVE</div>
+    <div class="spinner" id="loadingSpinner"></div>
+    <h1 id="enclaveTitle">Decrypting Secure Enclave...</h1>
+    <p id="enclaveDesc">Loading sealed RAM bytecode and verifying hardware key hash fragment...</p>
+    <div id="enclaveStatus" class="status-text">INITIALIZING RAM DECRYPTION</div>
   </div>
 
   <script>
-    // ========================================================================
-    // 1. LAYER-2 CHROMIUM 5-POINT ANTI-ADBLOCKER & CONTAINER GEOMETRY ENGINE
-    // ========================================================================
-    let isAdBlockerActive = false;
-    let adBlockerDiagnosticReason = "";
-    const loadedAdSlots = {};
-
-    window.__onAdTagLoad = function (slotId) {
-      loadedAdSlots[slotId] = true;
-    };
-
-    window.__onAdTagError = function (slotId, reason) {
-      triggerAdBlockLock("Tag blocked on #" + slotId + " (" + reason + ") — net::ERR_BLOCKED_BY_CLIENT or DNS sinkhole.");
-    };
-
-    function triggerAdBlockLock(reason) {
-      isAdBlockerActive = true;
-      adBlockerDiagnosticReason = reason;
-      unlockScroll();
-      const modal = document.getElementById("antiAdblockModal");
-      const reasonEl = document.getElementById("adblockReasonText");
-      if (reasonEl) {
-        reasonEl.innerText = "Chromium Telemetry: " + reason;
+    function hexToBytes(hex) {
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
       }
-      if (modal) {
-        modal.style.display = "flex";
+      return bytes;
+    }
+
+    function showLockedScreen(reason) {
+      const spinner = document.getElementById("loadingSpinner");
+      if (spinner) spinner.style.display = "none";
+      const title = document.getElementById("enclaveTitle");
+      if (title) title.innerText = "Access Restricted";
+      const desc = document.getElementById("enclaveDesc");
+      if (desc) desc.innerText = reason || "This sponsor portal is protected with zero-source RAM encryption. Please launch from within your CritiCode shielded application to claim your 24-Hour Pass.";
+      const status = document.getElementById("enclaveStatus");
+      if (status) {
+        status.innerText = "STATUS: HARDWARE_KEY_REQUIRED";
+        status.style.color = "#EF4444";
       }
     }
 
-    function verifyContainerGeometry(slotId, minWidth, minHeight) {
-      const el = document.getElementById(slotId);
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity || "1") < 0.5) {
-        triggerAdBlockLock("Container #" + slotId + " hidden by cosmetic filter (display/visibility/opacity).");
-        return false;
-      }
-      const rect = el.getBoundingClientRect();
-      if (rect.width < minWidth || rect.height < minHeight) {
-        triggerAdBlockLock("Container #" + slotId + " collapsed (" + Math.round(rect.width) + "x" + Math.round(rect.height) + "px).");
-        return false;
-      }
-      const child = el.querySelector("iframe, video, canvas, ins");
-      if (!child) {
-        triggerAdBlockLock("Container #" + slotId + " child media element stripped from DOM.");
-        return false;
-      }
-      const cStyle = window.getComputedStyle(child);
-      if (cStyle.display === "none" || cStyle.visibility === "hidden") {
-        triggerAdBlockLock("Child media inside #" + slotId + " hidden by cosmetic filter.");
-        return false;
-      }
-      return true;
-    }
-
-    async function runChromiumAntiAdBlockAudit() {
-      // Check 1: Cosmetic Bait Element
-      const bait = document.getElementById("ad-bait-canary");
-      if (!bait) {
-        triggerAdBlockLock("Cosmetic bait element removed from DOM.");
-        return;
-      }
-      const baitStyle = window.getComputedStyle(bait);
-      if (baitStyle.display === "none" || baitStyle.visibility === "hidden" || bait.offsetHeight === 0) {
-        triggerAdBlockLock("Cosmetic ad-blocker rule active (bait element hidden).");
-        return;
-      }
-
-      // Check 2: Container Bounding-Box Audit across all 5 slots
-      verifyContainerGeometry("ad-slot-1", 200, 60);
-      verifyContainerGeometry("video-slot-1", 200, 120);
-      verifyContainerGeometry("ad-slot-2", 200, 180);
-      verifyContainerGeometry("video-slot-2", 200, 120);
-      verifyContainerGeometry("video-slot-3", 200, 120);
-
-      // Check 3: Live Network Canary Probe to Ad Delivery Host
-      if (navigator.onLine !== false) {
-        try {
-          const controller = new AbortController();
-          const tId = setTimeout(() => controller.abort(), 4500);
-          await fetch("https://acceptable.a-ads.com/2430502/?size=Adaptive&_cb=" + Date.now(), {
-            mode: "no-cors",
-            cache: "no-store",
-            signal: controller.signal
-          });
-          clearTimeout(tId);
-        } catch (err) {
-          if (err && err.name !== "AbortError") {
-            triggerAdBlockLock("Ad delivery host unreachable (blocked by Private DNS / AdGuard / Shields).");
-          }
-        }
-      }
-    }
-
-    window.addEventListener("load", () => {
-      setTimeout(runChromiumAntiAdBlockAudit, 600);
-      setInterval(() => {
-        if (!isAdBlockerActive) {
-          verifyContainerGeometry("ad-slot-1", 200, 60);
-          verifyContainerGeometry("video-slot-1", 200, 120);
-          verifyContainerGeometry("ad-slot-2", 200, 180);
-          verifyContainerGeometry("video-slot-2", 200, 120);
-          verifyContainerGeometry("video-slot-3", 200, 120);
-        }
-      }, 2000);
-    });
-
-    // ========================================================================
-    // 2. LIVE HARDWARE-ACCELERATED SPONSOR VIDEO STREAM CANVASES
-    // ========================================================================
-    function initSponsorVideoCanvas(canvasId, titleText, subtitleText, accentColor) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      let frame = 0;
-
-      function render() {
-        frame++;
-        const w = canvas.width;
-        const h = canvas.height;
-
-        // Deep animated cyber gradient
-        const grad = ctx.createLinearGradient(0, 0, w, h);
-        grad.addColorStop(0, "#08101E");
-        grad.addColorStop(0.5, "#0F223D");
-        grad.addColorStop(1, "#091322");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-
-        // Animated waveform / telemetry bars
-        for (let i = 0; i < 24; i++) {
-          const x = 16 + i * 14;
-          const waveH = 14 + Math.abs(Math.sin((frame * 0.06) + i * 0.45)) * 42;
-          ctx.fillStyle = (i % 3 === 0) ? accentColor : "rgba(56, 189, 248, 0.28)";
-          ctx.fillRect(x, (h * 0.58) - waveH / 2, 8, waveH);
-        }
-
-        // Top-left Sponsor Tag
-        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-        ctx.fillRect(10, 10, 118, 20);
-        ctx.fillStyle = accentColor;
-        ctx.font = "bold 10px sans-serif";
-        ctx.fillText("● SPONSORED VIDEO", 16, 23);
-
-        // Title & Subtitle
-        ctx.fillStyle = "#F8FAFC";
-        ctx.font = "bold 13px sans-serif";
-        ctx.fillText(titleText, 14, h - 32);
-
-        ctx.fillStyle = "#94A3B8";
-        ctx.font = "11px sans-serif";
-        ctx.fillText(subtitleText, 14, h - 14);
-
-        // Bottom playback progress bar
-        const pct = (frame % 450) / 450;
-        ctx.fillStyle = "rgba(255,255,255,0.12)";
-        ctx.fillRect(0, h - 4, w, 4);
-        ctx.fillStyle = accentColor;
-        ctx.fillRect(0, h - 4, w * pct, 4);
-
-        requestAnimationFrame(render);
-      }
-      requestAnimationFrame(render);
-    }
-
-    initSponsorVideoCanvas("vCanvas1", "CritiCode Cloud-Mesh & VMP Enclave", "Zero-Latency Hardware Attestation • Mainstream Stream #1", "#38BDF8");
-    initSponsorVideoCanvas("vCanvas2", "HilltopAds Mainstream Video Partner", "Global High-Fill Video Stream • Slot #2", "#10B981");
-    initSponsorVideoCanvas("vCanvas3", "OnClickA Outstream Video Partner", "Verified IAB Viewability Stream • Slot #3", "#F59E0B");
-
-    // ========================================================================
-    // 3. INTERSECTION-OBSERVER DWELL CHECKPOINTS (3.5s TOP + 2.5s MID)
-    // ========================================================================
-    const CP1_TARGET_MS = 3500;
-    const CP2_TARGET_MS = 2500;
-
-    let cp1ElapsedMs = 0;
-    let cp2ElapsedMs = 0;
-    let cp1InView = false;
-    let cp2InView = false;
-    let cp1Verified = false;
-    let cp2Verified = false;
-    let finalCountdownRunning = false;
-    let finalCountdownDone = false;
-
-    const cpCard1 = document.getElementById("checkpointCard1");
-    const cpCard2 = document.getElementById("checkpointCard2");
-    const cp1Fill = document.getElementById("cp1Fill");
-    const cp2Fill = document.getElementById("cp2Fill");
-    const cp1StatusText = document.getElementById("cp1StatusText");
-    const cp2StatusText = document.getElementById("cp2StatusText");
-    const cp1TimeText = document.getElementById("cp1TimeText");
-    const cp2TimeText = document.getElementById("cp2TimeText");
-    const cp1Badge = document.getElementById("cp1Badge");
-    const cp2Badge = document.getElementById("cp2Badge");
-    const topProgressPill = document.getElementById("topProgressPill");
-    const startTimerBtn = document.getElementById("startTimerBtn");
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const isVisible = entry.isIntersecting && entry.intersectionRatio >= 0.55;
-        if (entry.target.id === "checkpointCard1") {
-          cp1InView = isVisible;
-        } else if (entry.target.id === "checkpointCard2") {
-          cp2InView = isVisible;
-        }
-      });
-    }, { threshold: [0.0, 0.55, 0.75] });
-
-    if (cpCard1) observer.observe(cpCard1);
-    if (cpCard2) observer.observe(cpCard2);
-
-    setInterval(() => {
-      if (isAdBlockerActive || document.hidden) return;
-
-      // Checkpoint 1 (3.5s)
-      if (!cp1Verified) {
-        if (cp1InView && verifyContainerGeometry("ad-slot-1", 200, 60) && verifyContainerGeometry("video-slot-1", 200, 120)) {
-          cpCard1.classList.add("active-dwell");
-          cp1ElapsedMs = Math.min(CP1_TARGET_MS, cp1ElapsedMs + 100);
-          const pct1 = (cp1ElapsedMs / CP1_TARGET_MS) * 100;
-          cp1Fill.style.width = pct1 + "%";
-          const rem1 = Math.max(0, (CP1_TARGET_MS - cp1ElapsedMs) / 1000).toFixed(1);
-          cp1TimeText.innerText = rem1 + "s";
-          cp1StatusText.innerText = "⚡ Verifying Sponsor Banner & Video #1...";
-
-          if (cp1ElapsedMs >= CP1_TARGET_MS) {
-            cp1Verified = true;
-            cpCard1.classList.remove("active-dwell");
-            cpCard1.classList.add("verified");
-            cp1StatusText.innerText = "✅ Checkpoint #1 Verified! Scroll down to #2 ⬇";
-            cp1TimeText.innerText = "DONE";
-            cp1Badge.innerText = "✓ Verified";
-            cp1Badge.style.color = "#10B981";
-            cp2StatusText.innerText = "⏳ Scroll here & hold 2.5s to verify Slot #2...";
-            cp2Badge.innerText = "2.5s View Required";
-            topProgressPill.innerText = "Step 2/3: Scroll to Checkpoint #2 (2.5s)";
-          }
-        } else {
-          cpCard1.classList.remove("active-dwell");
-          if (cp1ElapsedMs > 0) {
-            cp1StatusText.innerText = "⬆ Scroll back up & hold on Checkpoint #1";
-          }
-        }
-      }
-
-      // Checkpoint 2 (2.5s — requires Checkpoint 1 completed first)
-      if (cp1Verified && !cp2Verified) {
-        if (cp2InView && verifyContainerGeometry("ad-slot-2", 200, 180)) {
-          cpCard2.classList.add("active-dwell");
-          cp2ElapsedMs = Math.min(CP2_TARGET_MS, cp2ElapsedMs + 100);
-          const pct2 = (cp2ElapsedMs / CP2_TARGET_MS) * 100;
-          cp2Fill.style.width = pct2 + "%";
-          const rem2 = Math.max(0, (CP2_TARGET_MS - cp2ElapsedMs) / 1000).toFixed(1);
-          cp2TimeText.innerText = rem2 + "s";
-          cp2StatusText.innerText = "⚡ Verifying Mid-Feed Sponsor Slot #2...";
-
-          if (cp2ElapsedMs >= CP2_TARGET_MS) {
-            cp2Verified = true;
-            cpCard2.classList.remove("active-dwell");
-            cpCard2.classList.add("verified");
-            cp2StatusText.innerText = "✅ Checkpoint #2 Verified! Scroll to bottom ⬇";
-            cp2TimeText.innerText = "DONE";
-            cp2Badge.innerText = "✓ Verified";
-            cp2Badge.style.color = "#10B981";
-            topProgressPill.innerText = "Step 3/3: Tap Start 15s Timer at Bottom!";
-            topProgressPill.classList.add("ready");
-
-            // Unlock Final 15-Second Button!
-            startTimerBtn.disabled = false;
-            startTimerBtn.innerHTML = "▶ Start 15-Second Sponsor Video Timer";
-          }
-        } else {
-          cpCard2.classList.remove("active-dwell");
-        }
-      }
-    }, 100);
-
-    // ========================================================================
-    // 4. SCROLL-LOCK ENGINE & 15-SECOND DUAL-VIDEO COUNTDOWN
-    // ========================================================================
-    function preventScrollEvent(e) {
-      if (finalCountdownRunning) {
-        e.preventDefault();
-      }
-    }
-
-    function lockScrollOnFinalArena() {
-      const arena = document.getElementById("finalVideoArena");
-      if (arena) {
-        arena.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      setTimeout(() => {
-        if (finalCountdownRunning) {
-          document.body.classList.add("scroll-locked");
-          window.addEventListener("touchmove", preventScrollEvent, { passive: false });
-          window.addEventListener("wheel", preventScrollEvent, { passive: false });
-        }
-      }, 350);
-    }
-
-    function unlockScroll() {
-      document.body.classList.remove("scroll-locked");
-      window.removeEventListener("touchmove", preventScrollEvent);
-      window.removeEventListener("wheel", preventScrollEvent);
-    }
-
-    function generateSecurePass() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 8; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return "PASS-" + code;
-    }
-
-    function copyToClipboard(text) {
+    async function bootstrapEnclave() {
+      const status = document.getElementById("enclaveStatus");
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text);
-        }
-      } catch (e) { }
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        return true;
-      } catch (e) { }
-      return false;
-    }
-
-    let generatedPassKey = "";
-
-    function startFinalVideoCountdown() {
-      if (!cp1Verified || !cp2Verified || finalCountdownRunning || finalCountdownDone) return;
-      if (isAdBlockerActive) return;
-
-      // Verify both bottom video containers are unobstructed & rendered
-      if (!verifyContainerGeometry("video-slot-2", 200, 120) || !verifyContainerGeometry("video-slot-3", 200, 120)) {
-        return;
-      }
-
-      finalCountdownRunning = true;
-      startTimerBtn.disabled = true;
-      startTimerBtn.style.display = "none";
-
-      const ringRow = document.getElementById("countdownRingRow");
-      const ringProgress = document.getElementById("ringProgress");
-      const timerSecondsLabel = document.getElementById("timerSecondsLabel");
-      const timerSubNote = document.getElementById("timerSubNote");
-      const v2Label = document.getElementById("v2TimeLabel");
-      const v3Label = document.getElementById("v3TimeLabel");
-
-      if (ringRow) ringRow.style.display = "flex";
-      lockScrollOnFinalArena();
-
-      const TOTAL_MS = 15000;
-      const CIRCUMFERENCE = 138.2;
-      let elapsedMs = 0;
-
-      const timerInterval = setInterval(() => {
-        if (isAdBlockerActive) {
-          clearInterval(timerInterval);
-          finalCountdownRunning = false;
-          unlockScroll();
+        const hash = window.location.hash || "";
+        const match = hash.match(/#_k=([0-9a-fA-F]+)\.([0-9a-fA-F]+)\.([0-9a-fA-F]+)/);
+        if (!match) {
+          showLockedScreen("No authorized session key found in URL hash. Launch from within the genuine app.");
           return;
         }
 
-        if (document.hidden) {
-          if (timerSubNote) timerSubNote.innerText = "⏸ Paused — keep tab in foreground!";
+        const keyHex = match[1];
+        if (keyHex.length !== 64) {
+          showLockedScreen("Invalid enclave key length. Authentication rejected.");
           return;
         }
 
-        // Re-verify video containers remain visible during playback
-        if (!verifyContainerGeometry("video-slot-2", 200, 120) || !verifyContainerGeometry("video-slot-3", 200, 120)) {
+        if (status) status.innerText = "FETCHING ENCRYPTED ASSET...";
+        const resp = await fetch("portal.enc", { cache: "no-store" });
+        if (!resp.ok) {
+          showLockedScreen("Failed to load encrypted portal assets (" + resp.status + "). Check network.");
           return;
         }
 
-        elapsedMs += 100;
-        const remSec = Math.max(0, (TOTAL_MS - elapsedMs) / 1000).toFixed(1);
-        const progress = Math.min(1, elapsedMs / TOTAL_MS);
-
-        if (timerSecondsLabel) timerSecondsLabel.innerText = remSec + "s";
-        if (ringProgress) {
-          ringProgress.style.strokeDashoffset = (CIRCUMFERENCE * (1 - progress)).toFixed(2);
+        const buffer = await resp.arrayBuffer();
+        if (buffer.byteLength <= 28) {
+          showLockedScreen("Corrupted enclave payload.");
+          return;
         }
-        if (timerSubNote) {
-          timerSubNote.innerText = "Playing both sponsor streams (" + Math.round(progress * 100) + "%) — Scroll Locked";
-        }
-        if (v2Label) v2Label.innerText = "PLAYING • " + remSec + "s";
-        if (v3Label) v3Label.innerText = "PLAYING • " + remSec + "s";
 
-        if (elapsedMs >= TOTAL_MS) {
-          clearInterval(timerInterval);
-          finalCountdownRunning = false;
-          finalCountdownDone = true;
-          unlockScroll();
+        if (status) status.innerText = "IMPORTING HARDWARE AES KEY...";
+        const rawKey = hexToBytes(keyHex);
+        const cryptoKey = await window.crypto.subtle.importKey(
+          "raw",
+          rawKey,
+          { name: "AES-GCM" },
+          false,
+          ["decrypt"]
+        );
 
-          if (v2Label) v2Label.innerText = "✓ COMPLETED (15s)";
-          if (v3Label) v3Label.innerText = "✓ COMPLETED (15s)";
-          if (ringRow) ringRow.style.display = "none";
+        if (status) status.innerText = "DECRYPTING RAM PAYLOAD...";
+        const iv = new Uint8Array(buffer, 0, 12);
+        const ciphertext = new Uint8Array(buffer, 12);
 
-          generatedPassKey = generateSecurePass();
-          copyToClipboard(generatedPassKey);
+        const decrypted = await window.crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: iv },
+          cryptoKey,
+          ciphertext
+        );
 
-          const passDisplay = document.getElementById("passCodeDisplay");
-          const openBtn = document.getElementById("openAppDeepLinkBtn");
-          const resultBox = document.getElementById("unlockedResultBox");
-          const deepLinkUrl = "criticode://unlock?token=" + encodeURIComponent(generatedPassKey);
+        const html = new TextDecoder().decode(decrypted);
 
-          if (passDisplay) passDisplay.innerText = generatedPassKey;
-          if (openBtn) openBtn.href = deepLinkUrl;
-          if (resultBox) resultBox.style.display = "block";
-          if (topProgressPill) {
-            topProgressPill.innerText = "✓ 24-Hour Pass Unlocked!";
-          }
-
-          // Automatically redirect back into the shielded APK!
-          setTimeout(() => {
-            try {
-              window.location.href = deepLinkUrl;
-            } catch (e) { }
-          }, 250);
-        }
-      }, 100);
-    }
-
-    function copyGeneratedPassManual() {
-      if (!generatedPassKey) {
-        generatedPassKey = generateSecurePass();
-      }
-      copyToClipboard(generatedPassKey);
-      const btn = document.getElementById("manualCopyBtn");
-      if (btn) {
-        btn.innerText = "✅ Pass Key Copied to Clipboard!";
-        setTimeout(() => {
-          btn.innerText = "📋 Copy Pass Key Again";
-        }, 2000);
+        // Inject decrypted portal directly into document RAM
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (err) {
+        console.error("Enclave bootstrap error:", err);
+        showLockedScreen("Hardware key mismatch or decryption failed (" + (err && err.message ? err.message : err) + ").");
       }
     }
+
+    window.addEventListener("DOMContentLoaded", bootstrapEnclave);
   </script>
 </body>
-
 </html>
